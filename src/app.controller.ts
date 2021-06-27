@@ -7,7 +7,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
+  @Get('validate')
   @ApiOperation({ summary: 'Get Hello' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   getHello(): string {

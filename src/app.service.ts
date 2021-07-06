@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 interface ValidateURL {
   urlType: URLType;
   urlIntegrity: boolean;
+  pathName: boolean;
 }
 
 @Injectable()
@@ -15,16 +16,21 @@ export class AppService {
    */
   async validateURL(url: string): Promise<ValidateURL> {
     const requestedURL = new URL(url);
-
+    console.log(requestedURL);
     const hostValidated = this.validateHostName(requestedURL.host);
     const integrityValidated =
       hostValidated !== URLType.INVALID
         ? await this.validateUrlIntegrity(requestedURL.toString())
         : false;
+    const pathNameValidated =
+      hostValidated !== URLType.INVALID
+        ? this.validatePathName(requestedURL.pathname, hostValidated)
+        : false;
 
     return {
       urlType: hostValidated,
       urlIntegrity: integrityValidated,
+      pathName: pathNameValidated,
     };
   }
 
@@ -35,10 +41,10 @@ export class AppService {
    */
   validateHostName(url: string) {
     const Regex = {
-      Reddit: /reddit\.com/i,
+      reddit: new RegExp('^w?w?w?.?reddit.com$'),
     };
     try {
-      if (Regex.Reddit.test(url)) {
+      if (url.match(Regex.reddit)) {
         return URLType.REDDIT;
       } else {
         return URLType.INVALID;
@@ -49,6 +55,21 @@ export class AppService {
       } else {
         throw new Error(error.code);
       }
+    }
+  }
+
+  validatePathName(pathName: string, type: URLType) {
+    console.log(pathName);
+    const Regex = {
+      [URLType.REDDIT]: new RegExp(
+        '^/r/(d([a-zA-Z]+d)+)/comments/([a-zA-Z]+(d[a-zA-Z]+)+)/(d([a-zA-Z]+d)+)/$',
+      ),
+    };
+    console.log(Regex[type]);
+    if (pathName.match(Regex[type])) {
+      return true;
+    } else {
+      return false;
     }
   }
 

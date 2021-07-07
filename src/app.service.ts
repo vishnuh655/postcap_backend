@@ -58,12 +58,16 @@ export class AppService {
     }
   }
 
+  /**
+   * To validate the path name
+   * @param pathName path name string
+   * @param type which service this path belongs to
+   * @returns boolean
+   */
   validatePathName(pathName: string, type: URLType) {
     console.log(pathName);
     const Regex = {
-      [URLType.REDDIT]: new RegExp(
-        '^/r/(d([a-zA-Z]+d)+)/comments/([a-zA-Z]+(d[a-zA-Z]+)+)/(d([a-zA-Z]+d)+)/$',
-      ),
+      [URLType.REDDIT]: new RegExp('^/r/.*/comments/.*/.*/.*?$'),
     };
     console.log(Regex[type]);
     if (pathName.match(Regex[type])) {

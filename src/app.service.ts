@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import fetch from 'node-fetch';
 
-interface ValidateURL {
+export interface ValidateURL {
   urlType: URLType;
   urlIntegrity: boolean;
   pathName: boolean;
@@ -12,19 +12,25 @@ export class AppService {
   /**
    * To check the validity and integrity of the fiven URL.
    * @param url Requested URL
+   * @param shouldValidateIntegrity Flag wheather to validate integrity or not
    * @returns Object
    */
-  async validateURL(url: string): Promise<ValidateURL> {
+  async validateURL(
+    url: string,
+    shouldValidateIntegrity: boolean,
+  ): Promise<ValidateURL> {
     const requestedURL = new URL(url);
     console.log(requestedURL);
     const hostValidated = this.validateHostName(requestedURL.host);
-    const integrityValidated =
-      hostValidated !== URLType.INVALID
-        ? await this.validateUrlIntegrity(requestedURL.toString())
-        : false;
     const pathNameValidated =
       hostValidated !== URLType.INVALID
         ? this.validatePathName(requestedURL.pathname, hostValidated)
+        : false;
+    const integrityValidated =
+      hostValidated !== URLType.INVALID && shouldValidateIntegrity
+        ? await this.validateUrlIntegrity(requestedURL.toString())
+        : !shouldValidateIntegrity
+        ? undefined
         : false;
 
     return {

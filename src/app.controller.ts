@@ -26,7 +26,10 @@ export class AppController {
   async validateUrl(@Query() queryParams: any): Promise<any> {
     console.log(queryParams.url);
 
-    const validationResp = await this.appService.validateURL(queryParams.url);
+    const validationResp = await this.appService.validateURL(
+      queryParams.url,
+      false,
+    );
 
     if (validationResp.urlType === URLType.INVALID) {
       throw new HttpException(

@@ -1,22 +1,37 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppService, URLType, ValidateURL } from './app.service';
 
-describe('AppController', () => {
+describe('appController', () => {
+  let appService: AppService;
   let appController: AppController;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
+      imports: [],
       controllers: [AppController],
       providers: [AppService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    appController = moduleRef.get<AppController>(AppController);
+    appService = moduleRef.get<AppService>(AppService);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('validateURL', () => {
+    describe('when validateUrl is called', () => {
+      test('then it  call appService', async () => {
+        const result = {
+          urlType: URLType.FACEBOOK,
+          urlIntegrity: true,
+          pathName: true,
+        };
+        jest.spyOn(appService, 'validateURL').mockResolvedValue(result);
+        expect(
+          await appController.validateUrl(
+            'https://www.reddit.com/r/Kerala/comments/og5ae8/17_year_old_kerala_boy_nihal_sarin_crosses_elo/',
+          ),
+        ).toBe(result);
+      });
     });
   });
 });
